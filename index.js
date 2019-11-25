@@ -8,6 +8,7 @@ let server = http.createServer(function (request, response) {
   // server we don't have to implement anything.
 });
 server.listen(process.env.PORT, function () {});
+console.log('listen on port: ' + process.env.PORT);
 
 // create the server
 wsServer = new WebSocketServer({
@@ -30,13 +31,20 @@ wsServer.on('request', function (request) {
     switch (jsonMessage.aksi) {
       case 'daftar':
         console.log(jsonMessage.username);
-        clients.push({
-          username: jsonMessage.username,
-          koneksi: connection
-        });
-        usernames.push(jsonMessage.username);
-        myUsername = jsonMessage.username;
-        broadcastUserOnline();
+        //if user is not yet used then register him/her
+        if (usernames.indexOf(jsonMessage.username) < 0) {
+          clients.push({
+            username: jsonMessage.username,
+            koneksi: connection
+          });
+          usernames.push(jsonMessage.username);
+          myUsername = jsonMessage.username;
+          broadcastUserOnline();
+        } else {
+          connection.send(convertToPayload({
+            aksi: 'tanyaLagi',
+          }));
+        }
         break;
       case 'kirim':
         // simpan pesan di variable
@@ -49,7 +57,7 @@ wsServer.on('request', function (request) {
           pesan: jsonMessage.pesan,
           aksi: 'terima',
           pengirim: myUsername
-        })
+        });
         clients[index].koneksi.send(payload);
         break;
       default:
