@@ -47,11 +47,7 @@ wsServer.on('request', function (request) {
         }
         break;
       case 'kirim':
-        // simpan pesan di variable
-        /* myChats[jsonMessage.penerima].push({
-          pesan: jsonMessage.pesan,
-          tipe: 'yours'
-        }); */
+
         let index = usernames.indexOf(jsonMessage.penerima);
         let payload = convertToPayload({
           pesan: jsonMessage.pesan,
